@@ -48,7 +48,8 @@ export type Permission =
   | "exceptions.manage"
   | "automation.run"
   | "automation.configure"
-  | "import.run";
+  | "import.run"
+  | "demo.reset";
 
 const MATRIX: Record<Role, Permission[]> = {
   Administrator: [
@@ -64,6 +65,7 @@ const MATRIX: Record<Role, Permission[]> = {
     "automation.run",
     "automation.configure",
     "import.run",
+    "demo.reset",
   ],
   "Procurement Manager": [
     "pr.create",

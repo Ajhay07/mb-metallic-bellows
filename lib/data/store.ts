@@ -112,11 +112,34 @@ export function nextId(prefix: string): string {
   return `${prefix}-${String(store.seq[key]).padStart(pad, "0")}`;
 }
 
+// Reset the demo back to its seed state. Mutates the shared `store` object's
+// properties in place (rather than reassigning the `store` binding) so every
+// module that imported `store` keeps seeing live data after a reset, same as
+// it does across the globalForStore hot-reload trick above. This is a demo
+// convenience only — it still has no persistence; it just re-seeds memory.
+// Callers that want the Automation Centre's seed run history/exceptions back
+// too should call lib/automation/bootstrap's reseed helper right after this
+// (kept separate here to avoid a circular import between store <-> rules).
+export function resetStore(): void {
+  const fresh = buildInitialStore();
+  Object.assign(store, fresh);
+  store.seq["PR"] = 2006;
+  store.seq["PO"] = 3018;
+  store.seq["WO"] = 1010;
+  store.seq["EXC"] = 9002;
+}
+
 // Seed the sequence counters high enough that new IDs never collide with seed IDs.
-store.seq["PR"] = 2006;
-store.seq["PO"] = 3018;
-store.seq["WO"] = 1010;
-store.seq["EXC"] = 9002;
+// Guarded: Next.js dev mode evaluates this module separately for the page/RSC
+// compilation and the route-handler compilation. `store` itself is shared across
+// both via globalForStore, but without this guard these assignments would run
+// again on the second evaluation and silently reset counters already advanced by
+// nextId() calls (e.g. the automation bootstrap's auto-drafted requisition),
+// producing duplicate IDs across entities. Only set defaults the first time.
+if (store.seq["PR"] === undefined) store.seq["PR"] = 2006;
+if (store.seq["PO"] === undefined) store.seq["PO"] = 3018;
+if (store.seq["WO"] === undefined) store.seq["WO"] = 1010;
+if (store.seq["EXC"] === undefined) store.seq["EXC"] = 9002;
 store.seq["GRN"] = 5014;
 store.seq["LOT"] = 21;
 store.seq["IMP"] = 2;

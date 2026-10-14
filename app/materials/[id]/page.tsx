@@ -11,7 +11,7 @@ import type { Material, StockLot, StockMovement, Supplier } from "@/lib/types";
 
 interface MaterialDetail {
   material: Material;
-  stock: { onHand: number; quarantinedQty: number; reservedQty: number; availableQty: number; incomingQty: number; belowReorderPoint: boolean; belowSafetyStock: boolean; openIncomingPOs: { po: { id: string; poNumber: string }; outstandingQty: number; overdue: boolean; daysOverdue: number }[] };
+  stock: { onHand: number; quarantinedQty: number; pendingInspectionQty: number; reservedQty: number; availableQty: number; incomingQty: number; belowReorderPoint: boolean; belowSafetyStock: boolean; openIncomingPOs: { po: { id: string; poNumber: string }; outstandingQty: number; overdue: boolean; daysOverdue: number }[] };
   lots: StockLot[];
   movements: StockMovement[];
   mrpLine: { netRequirement: number; grossRequirement: number; isShortage: boolean; requiredByDate: string | null } | null;
@@ -90,14 +90,20 @@ export default function MaterialDetailPage() {
         actions={<Link href="/materials" className="btn-secondary">Back to materials</Link>}
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
         <Stat label="On Hand" value={`${formatNumber(stock.onHand)} ${material.uom}`} />
         <Stat label="Reserved" value={`${formatNumber(stock.reservedQty)} ${material.uom}`} />
         <Stat label="Quarantined" value={`${formatNumber(stock.quarantinedQty)} ${material.uom}`} warn={stock.quarantinedQty > 0} />
+        <Stat label="Pending Inspection" value={`${formatNumber(stock.pendingInspectionQty)} ${material.uom}`} warn={stock.pendingInspectionQty > 0} />
         <Stat label="Available" value={`${formatNumber(stock.availableQty)} ${material.uom}`} />
         <Stat label="Incoming" value={`${formatNumber(stock.incomingQty)} ${material.uom}`} />
         <Stat label="Reorder Point / Safety" value={`${material.reorderPoint} / ${material.safetyStock}`} warn={stock.belowReorderPoint} />
       </div>
+      {stock.pendingInspectionQty > 0 && (
+        <p className="mt-2 text-xs text-graphite-500">
+          {formatNumber(stock.pendingInspectionQty)} {material.uom} received but awaiting incoming inspection is excluded from Available until a Quality Inspector records a pass/fail result.
+        </p>
+      )}
 
       {mrpLine && mrpLine.isShortage && (
         <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

@@ -90,15 +90,27 @@ export function advanceStage(woId: string, actor: string, note?: string): StageA
   if (wo.status === "Completed" || wo.status === "Cancelled") {
     return { ok: false, error: `Cannot advance a ${wo.status} production order` };
   }
+  // On Hold is a deliberate pause (material shortage, quality hold, machine
+  // breakdown, etc.) — a stage can never be entered while the order sits on
+  // hold. Resume it first so the reason for the hold gets explicitly reviewed.
+  if (wo.status === "On Hold") {
+    return { ok: false, error: `Cannot advance stage: order is On Hold (${wo.delayReason ?? "reason not recorded"}). Resume the order first.` };
+  }
+
+  // The material-readiness gate applies to every stage entry, not just the
+  // initial start — an order that was ready at kick-off can still run into a
+  // shortage for a later stage's components (e.g. welding consumables run
+  // out, or a lot gets quarantined mid-run), so re-check readiness for the
+  // stage about to be entered every time, not only on "Not Started" -> "In Progress".
+  const readiness = computeProductionReadiness(wo);
+  if (!readiness.ready) {
+    return {
+      ok: false,
+      error: `Blocked: material not ready (${readiness.blockingLines.map((l) => `${l.materialCode} short by ${l.shortfall} ${l.uom}`).join(", ")}). Resolve the shortage or put the order on hold.`,
+    };
+  }
 
   if (wo.status === "Not Started") {
-    const readiness = computeProductionReadiness(wo);
-    if (!readiness.ready) {
-      return {
-        ok: false,
-        error: `Blocked: material not ready (${readiness.blockingLines.map((l) => `${l.materialCode} short by ${l.shortfall} ${l.uom}`).join(", ")})`,
-      };
-    }
     wo.status = "In Progress";
     wo.actualStart = new Date().toISOString();
     wo.stageHistory.push({ stage: wo.currentStage, enteredAt: wo.actualStart, note });

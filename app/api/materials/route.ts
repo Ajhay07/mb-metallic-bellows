@@ -8,6 +8,7 @@ export async function GET() {
       ...s.material,
       onHand: s.onHand,
       quarantinedQty: s.quarantinedQty,
+      pendingInspectionQty: s.pendingInspectionQty,
       availableQty: s.availableQty,
       incomingQty: s.incomingQty,
       belowReorderPoint: s.belowReorderPoint,

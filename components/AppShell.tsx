@@ -5,10 +5,12 @@ import { SearchBox } from "./SearchBox";
 import { RoleSwitcher } from "./RoleSwitcher";
 import { NotificationsBell } from "./NotificationsBell";
 import { Logo } from "./Logo";
+import { EntryScreen } from "./EntryScreen";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <RoleProvider>
+      <EntryScreen />
       <div className="flex min-h-screen bg-graphite-50">
         <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col">

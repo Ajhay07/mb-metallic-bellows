@@ -173,6 +173,77 @@ To turn the ERP Integration Centre from a demo stub into a real integration:
 5. Write-back support so actions taken here (GRN posting, inspection results,
    PO status) can flow back to the source ERP, not just read from it.
 
+## Polish & QA pass — what was verified and fixed
+
+This codebase went through a dedicated QA pass that drove all five core workflows
+through the real API (not just reading the code), cross-checked dashboard KPI
+numbers against the underlying data, and fixed what broke:
+
+- **Critical: duplicate entity IDs.** `lib/data/store.ts` seeded its ID-sequence
+  counters (`PR`, `PO`, `WO`, `EXC`) with unconditional top-level assignments. In
+  Next.js dev mode, the page/RSC compilation and the route-handler compilation
+  each re-evaluate shared modules separately, so those assignments ran a second
+  time and silently reset counters already advanced by `nextId()` — producing
+  two different records with the same ID (reproduced with the automation
+  engine's auto-drafted reorder requisition colliding with a freshly created
+  one). Fixed by guarding each assignment so it only applies the first time the
+  store is built (`lib/data/store.ts`).
+- **Goods receipt bypassed incoming inspection.** A freshly received lot
+  (`inspectionStatus: "pending"`) was immediately counted in `availableQty`,
+  meaning stock could be allocated to production before QA ever looked at it.
+  `lib/domain/stock.ts` now excludes lots pending inspection from available
+  stock (a new `pendingInspectionQty`, surfaced on the Materials list/detail
+  pages) until a Quality Inspector records a pass/fail result.
+- **Production stage advance skipped the material-readiness gate after the
+  first stage.** The gate only ran on the initial "Not Started → In Progress"
+  transition; an order already in progress (including one sitting **On Hold**)
+  could be advanced through further stages with no re-check, bypassing the
+  shortage/quarantine block entirely. `lib/domain/production.ts` now re-checks
+  readiness on every stage transition and explicitly rejects advancing an
+  On Hold order, both with a clear error naming the blocking material(s).
+- Verified end-to-end via the API: requisition create → submit → approve →
+  reject-permission checks; PR → PO conversion → approve → order → partial
+  receipt → inspection pass/fail → inventory update; lot quarantine → blocked
+  allocation → release; production readiness → blocked/valid stage advance →
+  hold/resume; exception acknowledge → resolve/dismiss with reason and full
+  audit history. Invalid transitions (wrong role, wrong state, missing reason)
+  all reject with a specific, actionable message rather than a generic error.
+- Confirmed the Automation Centre never auto-applies anything: reorder
+  recommendations stay as **Draft** requisitions, shortage/delay/readiness/SLA
+  findings only ever create or update Exceptions — nothing auto-approves a PO
+  or auto-releases a quarantined lot.
+- Added a minimal branded demo entry screen (`components/EntryScreen.tsx`,
+  shown once per browser tab) so the app no longer silently drops every
+  visitor into the dashboard as a full-access Administrator with no "who are
+  you" moment — it's still the same demo-only role selection as the top-bar
+  switcher, just made explicit up front.
+- Added a **Reset Demo Data** action (Administrator-only, sidebar, with a
+  confirmation dialog) that re-seeds the in-memory store and regenerates the
+  same automation run a fresh server boot produces — see "Data persistence"
+  below for what it does and doesn't do.
+- `npm run lint` and `npm run build` both pass with zero warnings/errors after
+  all of the above.
+
+## Data persistence — read this before a demo
+
+There is **no database**. `lib/data/store.ts` is a module-scoped in-memory
+object. Every mutation (creating a requisition, receiving goods, advancing a
+production stage, resolving an exception, running automation checks, the CSV
+import) is real server-side logic, but it is held only in the Node process's
+memory for as long as that process runs.
+
+Concretely:
+- **A page refresh is safe** — React state is gone, but the next fetch reads
+  the same in-memory store, so your changes are still there.
+- **A dev-server restart (`npm run dev` restarted, or a redeploy) is not** —
+  the store rebuilds from `lib/data/seed.ts` from scratch and everything you
+  did in the previous run is gone. There is no warning when this happens
+  beyond the data simply looking like the original seed again.
+- The sidebar's **Reset Demo Data** button (Administrator role only) does the
+  same re-seed deliberately and immediately, with a confirmation dialog, for
+  getting back to a clean starting point mid-demo without restarting the
+  server.
+
 ## Branding note
 
 "MB METALLIC BELLOWS" is rendered here as a simple geometric wordmark and mark

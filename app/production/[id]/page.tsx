@@ -149,11 +149,15 @@ export default function ProductionDetailPage() {
           {canManage && (
             <div className="space-y-2">
               {wo.status !== "Completed" && wo.status !== "Cancelled" && wo.status !== "On Hold" && (
-                <button disabled={busy} onClick={advance} className="btn-primary w-full">
+                <button disabled={busy || !readiness.ready} onClick={advance} className="btn-primary w-full">
                   {wo.status === "Not Started" ? "Start Production" : `Advance to: ${nextStage ?? "—"}`}
                 </button>
               )}
-              {wo.status === "Not Started" && !readiness.ready && <p className="text-xs text-red-600">Cannot start — blocked by the material shortfall(s) above.</p>}
+              {wo.status !== "On Hold" && !readiness.ready && (
+                <p className="text-xs text-red-600">
+                  {wo.status === "Not Started" ? "Cannot start" : "Cannot advance"} — blocked by the material shortfall(s) above. The gate re-checks on every stage, not just at start.
+                </p>
+              )}
               {wo.status === "On Hold" ? (
                 <button disabled={busy} onClick={resume} className="btn-primary w-full">Resume</button>
               ) : wo.status !== "Completed" && wo.status !== "Cancelled" ? (

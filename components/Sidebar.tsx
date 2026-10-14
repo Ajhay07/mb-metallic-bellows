@@ -1,6 +1,9 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRole } from "@/lib/client/RoleContext";
+import { roleHasPermission } from "@/lib/auth/roles";
 import {
   LayoutDashboard,
   Boxes,
@@ -13,6 +16,7 @@ import {
   Bot,
   BarChart3,
   Plug,
+  RotateCcw,
 } from "lucide-react";
 import { Logo } from "./Logo";
 
@@ -40,6 +44,29 @@ const NAV: NavItem[] = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { role } = useRole();
+  const canReset = roleHasPermission(role, "demo.reset");
+  const [resetting, setResetting] = useState(false);
+  const [resetDone, setResetDone] = useState(false);
+
+  async function resetDemoData() {
+    if (!confirm("Reset all demo data back to the original seed? Everything created or changed this session (requisitions, POs, production progress, exceptions) will be lost. This cannot be undone.")) return;
+    setResetting(true);
+    try {
+      const res = await fetch("/api/admin/reset", { method: "POST" });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        alert(d.error ?? "Reset failed.");
+        return;
+      }
+      setResetDone(true);
+      // Full reload so every open page re-fetches fresh seed data instead of
+      // showing stale client state from before the reset.
+      window.location.reload();
+    } finally {
+      setResetting(false);
+    }
+  }
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-graphite-200 bg-white md:flex">
@@ -66,8 +93,20 @@ export function Sidebar() {
       </nav>
       <div className="border-t border-graphite-200 p-3">
         <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] leading-snug text-amber-800">
-          <span className="font-semibold">DEMO DATA MODE</span> — synthetic dataset, no live ERP connection.
+          <span className="font-semibold">DEMO DATA MODE</span> — synthetic dataset, no live ERP connection. In-memory
+          only: a server restart already resets it.
         </div>
+        {canReset && (
+          <button
+            onClick={resetDemoData}
+            disabled={resetting}
+            className="btn-secondary mt-2 w-full justify-center text-xs"
+            title="Re-seed the in-memory demo dataset, discarding everything changed this session"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            {resetting ? "Resetting…" : resetDone ? "Reset — reloading…" : "Reset Demo Data"}
+          </button>
+        )}
       </div>
     </aside>
   );

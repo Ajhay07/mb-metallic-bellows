@@ -9,8 +9,9 @@ export interface MaterialStockSummary {
   material: Material;
   onHand: number; // physically in the store (available + quarantined lots)
   quarantinedQty: number;
+  pendingInspectionQty: number;
   reservedQty: number;
-  availableQty: number; // onHand - reservedQty - quarantinedQty, floored at 0
+  availableQty: number; // onHand - reservedQty - quarantinedQty - pendingInspectionQty, floored at 0
   incomingQty: number; // sum of outstanding qty on open purchase orders
   belowReorderPoint: boolean;
   belowSafetyStock: boolean;
@@ -45,8 +46,15 @@ export function computeMaterialStock(materialId: string): MaterialStockSummary {
   const lots = getLotsForMaterial(materialId);
   const onHand = lots.filter((l) => l.status !== "rejected").reduce((sum, l) => sum + l.qty, 0);
   const quarantinedQty = lots.filter((l) => l.status === "quarantined").reduce((sum, l) => sum + l.qty, 0);
+  // A lot that has physically arrived but has not yet cleared incoming inspection
+  // (inspectionStatus "pending") is not free to allocate to production, even though
+  // its LotStatus is "available" (it isn't quarantined or rejected either — it's
+  // simply not inspected yet). Hold it out of availableQty until QA records a result.
+  const pendingInspectionQty = lots
+    .filter((l) => l.status === "available" && l.inspectionStatus === "pending")
+    .reduce((sum, l) => sum + l.qty, 0);
   const reservedQty = material.reservedQty;
-  const availableQty = Math.max(0, onHand - reservedQty - quarantinedQty);
+  const availableQty = Math.max(0, onHand - reservedQty - quarantinedQty - pendingInspectionQty);
   const openIncomingPOs = getOpenPurchaseOrderLinesForMaterial(materialId);
   const incomingQty = openIncomingPOs.reduce((sum, p) => sum + p.outstandingQty, 0);
 
@@ -54,6 +62,7 @@ export function computeMaterialStock(materialId: string): MaterialStockSummary {
     material,
     onHand,
     quarantinedQty,
+    pendingInspectionQty,
     reservedQty,
     availableQty,
     incomingQty,
