@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+html {
+  background-color: #f6f7f8;
+}
+
+body {
+  color: #22262a;
+  background-color: #f6f7f8;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-lg border border-graphite-200 bg-white shadow-panel;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn border-steel-700 bg-steel-700 text-white hover:bg-steel-800;
+  }
+  .btn-secondary {
+    @apply btn border-graphite-300 bg-white text-graphite-800 hover:bg-graphite-100;
+  }
+  .btn-danger {
+    @apply btn border-red-300 bg-white text-red-700 hover:bg-red-50;
+  }
+  .input {
+    @apply w-full rounded-md border border-graphite-300 bg-white px-3 py-1.5 text-sm text-graphite-900 placeholder:text-graphite-400 focus:border-steel-500 focus:outline-none focus:ring-1 focus:ring-steel-500;
+  }
+  .table-base {
+    @apply w-full border-collapse text-sm;
+  }
+  .table-base th {
+    @apply border-b border-graphite-200 bg-graphite-50 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-graphite-500;
+  }
+  .table-base td {
+    @apply border-b border-graphite-100 px-3 py-2 align-top text-graphite-800;
+  }
+  .table-base tr:hover td {
+    @apply bg-graphite-50;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+  }
+}
