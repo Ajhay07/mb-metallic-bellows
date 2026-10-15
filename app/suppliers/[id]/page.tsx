@@ -43,6 +43,7 @@ export default function SupplierDetailPage() {
   return (
     <div>
       <PageHeader
+        breadcrumb={["Suppliers", supplier.name]}
         title={supplier.name}
         description={`${supplier.location} · Contact: ${supplier.contactPerson} (${supplier.email}, ${supplier.phone}) · Active since ${formatDateShort(supplier.activeSince)}`}
         actions={<Link href="/suppliers" className="btn-secondary">Back to directory</Link>}

@@ -58,7 +58,7 @@ export default function NewRequisitionPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <PageHeader title="New Purchase Requisition" description="Created as Draft. Submit for approval once ready." actions={<Link href="/procurement/requisitions" className="btn-secondary">Cancel</Link>} />
+      <PageHeader breadcrumb={["Procurement", "Requisitions", "New"]} title="New Purchase Requisition" description="Created as Draft. Submit for approval once ready." actions={<Link href="/procurement/requisitions" className="btn-secondary">Cancel</Link>} />
       <div className="panel space-y-4 p-5">
         {error && <ErrorState message={error} />}
         <div>

@@ -12,7 +12,7 @@ const REPORTS = [
 export default function ReportsIndexPage() {
   return (
     <div>
-      <PageHeader title="Reports" description="Real tables derived from the live dataset — every report supports CSV export and a print-friendly view. No invented figures." />
+      <PageHeader breadcrumb={["Reports"]} title="Reports" description="Real tables derived from the live dataset — every report supports CSV export and a print-friendly view. No invented figures." />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {REPORTS.map((r) => (
           <Link key={r.href} href={r.href} className="panel flex items-start gap-3 p-4 hover:shadow-md">

@@ -14,12 +14,84 @@ import {
   Target,
   ShieldAlert,
   PlayCircle,
+  CalendarClock,
+  ArrowRight,
 } from "lucide-react";
 import { KpiCard } from "@/components/KpiCard";
 import { LoadingState, ErrorState, PageHeader } from "@/components/States";
 import { SeverityBadge, StatusBadge, PriorityBadge } from "@/components/Badges";
+import { BellowsMotif } from "@/components/Logo";
 import { formatDateShort, relativeTime } from "@/lib/format";
-import type { ExceptionItem, ProductionOrder } from "@/lib/types";
+import type { ExceptionItem, ExceptionSeverity, ProductionOrder } from "@/lib/types";
+
+const SEVERITY_ACCENT: Record<ExceptionSeverity, string> = {
+  Critical: "border-l-red-500",
+  High: "border-l-amber-500",
+  Medium: "border-l-steel-400",
+  Low: "border-l-graphite-300",
+};
+
+/** Orange-accent panel section header used throughout the Command Centre. */
+function SectionHeader({
+  title,
+  subtitle,
+  href,
+  linkLabel = "View All",
+  dark,
+}: {
+  title: string;
+  subtitle?: string;
+  href: string;
+  linkLabel?: string;
+  dark?: boolean;
+}) {
+  return (
+    <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="flex items-stretch gap-2.5">
+        <span className="w-[3px] shrink-0 bg-orange-500" />
+        <div>
+          <h2 className="text-sm font-extrabold uppercase tracking-wide text-graphite-900">{title}</h2>
+          {subtitle && <p className="text-[10px] font-semibold uppercase tracking-wider text-[color:var(--muted-foreground)]">{subtitle}</p>}
+        </div>
+      </div>
+      <Link href={href} className={dark ? "btn-dark shrink-0 text-xs" : "shrink-0 text-xs font-semibold text-steel-700 hover:underline"}>
+        {linkLabel}
+        {dark && <ArrowRight className="h-3.5 w-3.5" />}
+      </Link>
+    </div>
+  );
+}
+
+function DemoStatusPanel() {
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => {
+    setNow(new Date());
+    const id = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="panel relative mb-6 flex flex-wrap items-center justify-between gap-3 overflow-hidden p-4">
+      <div className="flex items-center gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-orange-50 text-orange-600">
+          <CalendarClock className="h-4 w-4" />
+        </span>
+        <div>
+          <div className="flex items-center gap-1.5 text-sm font-bold text-graphite-900">
+            <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[color:var(--success)]" aria-hidden="true" />
+            <span className="uppercase">MB Metallic Bellows Pvt. Ltd.</span> <span className="font-normal text-[color:var(--muted-foreground)]">— Operations Management System</span>
+          </div>
+          <div className="text-xs text-[color:var(--muted-foreground)]">
+            {now ? now.toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" }) : " "}
+            {now && ` · ${now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })} IST`}
+          </div>
+        </div>
+      </div>
+      <span className="badge border-amber-300 bg-amber-50 text-amber-800">Demo Data Mode — not connected to a live ERP</span>
+      <BellowsMotif className="pointer-events-none absolute -right-6 -top-8 h-32 w-64 text-graphite-200/70" />
+    </div>
+  );
+}
 
 interface SupplierDelivery {
   poId: string;
@@ -68,10 +140,23 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Operations Command Centre"
-        description="Live snapshot computed from the demo dataset — every figure below is derived from current materials, purchase orders, production orders and exceptions, not hardcoded."
-      />
+      <div className="flex flex-wrap items-stretch justify-between gap-4">
+        <PageHeader
+          breadcrumb={["Command Centre"]}
+          title="Operations Command Centre"
+          description="Live snapshot from production, procurement and inventory operations — every figure below is derived from current data, not hardcoded."
+        />
+        {/* Industrial imagery region. No sourced product photography exists in this
+            repo, so this reuses the geometric bellows-corrugation motif (see
+            components/Logo.tsx) at a larger, desaturated scale rather than
+            fabricating or fetching stock imagery. */}
+        <div className="relative hidden h-[88px] w-64 shrink-0 overflow-hidden rounded-lg border border-[color:var(--border-strong)] bg-[color:var(--border-strong)] lg:block">
+          <BellowsMotif className="absolute inset-0 h-full w-full text-white/15" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[color:var(--border-strong)] via-transparent to-transparent" />
+        </div>
+      </div>
+
+      <DemoStatusPanel />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
         <KpiCard label="Active Production Orders" value={k.activeProductionOrders} href="/production" icon={Factory} />
@@ -88,12 +173,9 @@ export default function DashboardPage() {
         <KpiCard label="Critical Exceptions" value={k.criticalExceptions} href="/exceptions?severity=Critical" icon={ShieldAlert} tone={k.criticalExceptions > 0 ? "critical" : "neutral"} />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <div className="panel p-4 xl:col-span-2">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-graphite-800">Production Schedule (next 10 orders by planned start)</h2>
-            <Link href="/production" className="text-xs font-medium text-steel-700 hover:underline">View all →</Link>
-          </div>
+      <div className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-10">
+        <div className="panel p-4 xl:col-span-7">
+          <SectionHeader title="Production Schedule" subtitle="Next 10 orders by planned start" href="/production" dark />
           <div className="overflow-x-auto">
             <table className="table-base">
               <thead>
@@ -106,19 +188,25 @@ export default function DashboardPage() {
                   <th>Status</th>
                   <th>Planned Start</th>
                   <th>Planned End</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 {data.schedule.map((wo) => (
                   <tr key={wo.id}>
-                    <td><Link href={`/production/${wo.id}`} className="font-medium text-steel-700 hover:underline">{wo.woNumber}</Link></td>
+                    <td><Link href={`/production/${wo.id}`} className="font-semibold text-steel-700 hover:underline">{wo.woNumber}</Link></td>
                     <td>{wo.customer}</td>
-                    <td>{wo.qty}</td>
+                    <td className="tabular-nums">{wo.qty}</td>
                     <td><PriorityBadge priority={wo.priority} /></td>
                     <td>{wo.currentStage}</td>
                     <td><StatusBadge status={wo.status} /></td>
-                    <td>{formatDateShort(wo.plannedStart)}</td>
-                    <td>{formatDateShort(wo.plannedEnd)}</td>
+                    <td className="tabular-nums">{formatDateShort(wo.plannedStart)}</td>
+                    <td className="tabular-nums">{formatDateShort(wo.plannedEnd)}</td>
+                    <td>
+                      <Link href={`/production/${wo.id}`} className="text-graphite-400 hover:text-orange-600" aria-label={`Open ${wo.woNumber}`}>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -126,37 +214,43 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="panel p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-graphite-800">Prioritized Action Queue</h2>
-            <Link href="/exceptions" className="text-xs font-medium text-steel-700 hover:underline">Full inbox →</Link>
+        <div className="panel overflow-hidden xl:col-span-3">
+          <div className="flex items-center justify-between gap-2 border-b border-[color:var(--border)] bg-orange-500 px-4 py-2.5">
+            <h2 className="text-sm font-extrabold uppercase tracking-wide text-white">Prioritized Action Queue</h2>
+            <Link href="/exceptions" className="shrink-0 text-xs font-semibold text-white/90 hover:underline">Full Inbox</Link>
           </div>
-          <p className="mb-3 text-xs text-graphite-500">Ranked by severity, then deadline proximity, then age — the same transparent rule used throughout the Exceptions Inbox.</p>
-          <div className="space-y-2">
-            {data.exceptionQueue.length === 0 && <p className="py-6 text-center text-sm text-graphite-400">No open exceptions.</p>}
-            {data.exceptionQueue.map((e) => (
-              <Link key={e.id} href={e.affectedEntity.href} className="block rounded-md border border-graphite-200 p-2.5 hover:border-steel-300 hover:bg-steel-50/40">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-medium text-graphite-900">{e.title}</span>
-                  <SeverityBadge severity={e.severity} />
-                </div>
-                <p className="mt-1 line-clamp-2 text-xs text-graphite-500">{e.recommendedAction}</p>
-                <div className="mt-1 flex items-center justify-between text-[11px] text-graphite-400">
-                  <span>{e.category} · Owner: {e.owner}</span>
-                  {e.deadline && <span>Due {formatDateShort(e.deadline)}</span>}
-                </div>
-              </Link>
-            ))}
+          <div className="p-4">
+            <p className="mb-3 text-[11px] text-[color:var(--muted-foreground)]">Ranked by severity, then deadline proximity, then age — the same transparent rule used throughout the Exceptions Inbox.</p>
+            <div className="space-y-2">
+              {data.exceptionQueue.length === 0 && <p className="py-6 text-center text-sm text-graphite-400">No open exceptions.</p>}
+              {data.exceptionQueue.map((e, i) => (
+                <Link
+                  key={e.id}
+                  href={e.affectedEntity.href}
+                  className={`flex gap-2.5 rounded border border-l-[3px] border-[color:var(--border)] bg-[color:var(--surface-secondary)] p-2.5 transition-colors hover:border-graphite-400 hover:bg-white ${SEVERITY_ACCENT[e.severity]}`}
+                >
+                  <span className="shrink-0 font-mono text-[10px] font-bold tabular-nums text-graphite-400">{String(i + 1).padStart(2, "0")}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-bold text-graphite-900">{e.title}</span>
+                      <SeverityBadge severity={e.severity} />
+                    </div>
+                    <p className="mt-1 line-clamp-2 text-xs text-[color:var(--muted-foreground)]">{e.recommendedAction}</p>
+                    <div className="mt-1 flex items-center justify-between text-[11px] text-graphite-400">
+                      <span>{e.category} · Owner: {e.owner}</span>
+                      {e.deadline && <span>Due {formatDateShort(e.deadline)}</span>}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="panel p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-graphite-800">Critical Shortages (MRP net requirement &gt; 0)</h2>
-            <Link href="/mrp" className="text-xs font-medium text-steel-700 hover:underline">Open MRP →</Link>
-          </div>
+          <SectionHeader title="Critical Shortages" subtitle="MRP net requirement > 0" href="/mrp" linkLabel="Open MRP" />
           <div className="overflow-x-auto">
             <table className="table-base">
               <thead>
@@ -180,10 +274,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="panel p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-graphite-800">Supplier Delivery Tracker (open POs by nearest due date)</h2>
-            <Link href="/procurement/purchase-orders" className="text-xs font-medium text-steel-700 hover:underline">All POs →</Link>
-          </div>
+          <SectionHeader title="Supplier Delivery Tracker" subtitle="Open POs by nearest due date" href="/procurement/purchase-orders" linkLabel="All POs" />
           <div className="overflow-x-auto">
             <table className="table-base">
               <thead>

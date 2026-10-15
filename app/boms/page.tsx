@@ -17,7 +17,7 @@ export default function BomsPage() {
 
   return (
     <div>
-      <PageHeader title="Bills of Material" description="Each finished bellows product's components, quantity-per-unit, scrap allowance and the production stage that consumes them." />
+      <PageHeader breadcrumb={["Bills of Material"]} title="Bills of Material" description="Each finished bellows product's components, quantity-per-unit, scrap allowance and the production stage that consumes them." />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {boms.map((b) => (
           <Link key={b.id} href={`/boms/${b.id}`} className="panel p-4 hover:shadow-md">

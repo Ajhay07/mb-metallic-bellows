@@ -26,6 +26,7 @@ export default function RequisitionsPage() {
   return (
     <div>
       <PageHeader
+        breadcrumb={["Procurement", "Requisitions"]}
         title="Purchase Requisitions"
         description="Draft → Pending Approval → Approved → Converted (or Rejected / Cancelled). Transitions are validated server-side."
         actions={roleHasPermission(role, "pr.create") ? <Link href="/procurement/requisitions/new" className="btn-primary">New Requisition</Link> : undefined}

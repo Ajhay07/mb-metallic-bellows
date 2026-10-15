@@ -48,6 +48,7 @@ function MaterialsInner() {
   return (
     <div>
       <PageHeader
+        breadcrumb={["Materials & Inventory"]}
         title="Materials & Inventory"
         description="Material master with live stock math: available = on-hand − reserved − quarantined − pending inspection. Incoming is the outstanding quantity on open purchase orders."
       />

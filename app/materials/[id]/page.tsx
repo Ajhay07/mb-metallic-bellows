@@ -85,6 +85,7 @@ export default function MaterialDetailPage() {
   return (
     <div>
       <PageHeader
+        breadcrumb={["Materials & Inventory", material.code]}
         title={`${material.code} — ${material.name}`}
         description={`${material.category} · ${material.grade ?? ""}`}
         actions={<Link href="/materials" className="btn-secondary">Back to materials</Link>}

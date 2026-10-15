@@ -51,7 +51,7 @@ function ExceptionsInner() {
 
   return (
     <div>
-      <PageHeader title="Exceptions Inbox" description="Unified queue across procurement, inventory, production, supplier and quality issues — ranked by severity, then deadline proximity, then age." />
+      <PageHeader breadcrumb={["Exceptions Inbox"]} title="Exceptions Inbox" description="Unified queue across procurement, inventory, production, supplier and quality issues — ranked by severity, then deadline proximity, then age." />
       <div className="mb-4 flex flex-wrap gap-2">
         <select value={category} onChange={(e) => setCategory(e.target.value)} className="input w-44">
           <option value="">All categories</option>

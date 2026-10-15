@@ -49,6 +49,7 @@ export default function AutomationPage() {
   return (
     <div>
       <PageHeader
+        breadcrumb={["Automation Centre"]}
         title="Automation Centre"
         description="Deterministic, server-side rule evaluators run against the current dataset. Nothing here uses machine learning or opaque scoring — every rule's condition and action is listed below and reflected exactly in its results."
         actions={canRun ? (

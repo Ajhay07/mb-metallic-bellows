@@ -95,6 +95,7 @@ export default function RequisitionDetailPage() {
   return (
     <div>
       <PageHeader
+        breadcrumb={["Procurement", "Requisitions", pr.prNumber]}
         title={pr.prNumber}
         description={pr.title}
         actions={<Link href="/procurement/requisitions" className="btn-secondary">Back to requisitions</Link>}

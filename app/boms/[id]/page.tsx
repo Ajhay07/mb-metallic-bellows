@@ -36,6 +36,7 @@ export default function BomDetailPage() {
   return (
     <div>
       <PageHeader
+        breadcrumb={["Bills of Material", bom.productCode]}
         title={`${bom.productCode} — ${bom.productName}`}
         description={`${bom.description} · Revision ${bom.revision}`}
         actions={<Link href="/boms" className="btn-secondary">Back to BOMs</Link>}

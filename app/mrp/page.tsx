@@ -46,6 +46,7 @@ function MrpInner() {
   return (
     <div>
       <PageHeader
+        breadcrumb={["MRP"]}
         title="Material Requirements Planning (MRP)"
         description="Gross requirement = Σ (order qty × BOM qty-per-unit × (1 + scrap%)) across open production orders. Net requirement = max(0, gross − available − confirmed incoming). Suggested purchase qty rounds the net requirement up to the nearest 5 units."
       />

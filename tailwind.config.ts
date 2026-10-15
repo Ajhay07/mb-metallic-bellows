@@ -35,13 +35,47 @@ const config: Config = {
           800: "#233f52",
           900: "#1f3646",
         },
+        // Restrained industrial accent — primary actions, active nav state,
+        // occasional icon emphasis. Never used as a body-text color.
+        orange: {
+          50: "#fff2ec",
+          100: "#ffdfd0",
+          200: "#ffbfa3",
+          300: "#ff9a6e",
+          400: "#ff7238",
+          500: "#ff4b0b",
+          600: "#e63f05",
+          700: "#bd3304",
+          800: "#932804",
+          900: "#782106",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
       },
+      borderRadius: {
+        // Controls (buttons, inputs, badges) vs. panels/tables — the
+        // reference uses near-square geometry, not Soft UI's 8–12px scale.
+        DEFAULT: "4px",
+        md: "4px",
+        lg: "2px",
+        xl: "2px",
+      },
       boxShadow: {
-        panel: "0 1px 2px 0 rgba(21, 24, 27, 0.06), 0 1px 1px 0 rgba(21, 24, 27, 0.04)",
+        // Base raised elevation for panels/cards/buttons.
+        panel: "var(--shadow-raised)",
+        // Hover lift — every existing `hover:shadow-md` in the app (cards,
+        // nav rows) now resolves to the soft-UI hover token for free.
+        md: "var(--shadow-hover)",
+        // Floating layers — dropdowns, popovers, the entry-screen modal.
+        lg: "var(--shadow-elevated)",
+        raised: "var(--shadow-raised)",
+        elevated: "var(--shadow-elevated)",
+        hover: "var(--shadow-hover)",
+        inset: "var(--shadow-inset)",
+        "inset-focus": "var(--shadow-inset-focus)",
+        pressed: "var(--shadow-pressed)",
       },
     },
   },

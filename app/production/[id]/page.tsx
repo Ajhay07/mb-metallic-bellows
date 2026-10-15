@@ -81,6 +81,7 @@ export default function ProductionDetailPage() {
   return (
     <div>
       <PageHeader
+        breadcrumb={["Production", wo.woNumber]}
         title={wo.woNumber}
         description={`${bom.productCode} — ${bom.productName} · Customer: ${wo.customer} (${wo.salesOrderRef})`}
         actions={<Link href="/production" className="btn-secondary">Back to production</Link>}

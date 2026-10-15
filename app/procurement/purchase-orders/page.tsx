@@ -45,6 +45,7 @@ function PurchaseOrdersInner() {
   return (
     <div>
       <PageHeader
+        breadcrumb={["Procurement", "Purchase Orders"]}
         title="Purchase Orders"
         description="Draft → Pending Approval → Approved → Ordered → Partially Received / Received → Closed (or Rejected / Cancelled)."
         actions={roleHasPermission(role, "po.create") ? <Link href="/procurement/purchase-orders/new" className="btn-primary">New Purchase Order</Link> : undefined}

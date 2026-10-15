@@ -61,7 +61,7 @@ export default function NewPurchaseOrderPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <PageHeader title="New Purchase Order" description="Created as Draft — route it through Pending Approval → Approved → Ordered from the detail page." actions={<Link href="/procurement/purchase-orders" className="btn-secondary">Cancel</Link>} />
+      <PageHeader breadcrumb={["Procurement", "Purchase Orders", "New"]} title="New Purchase Order" description="Created as Draft — route it through Pending Approval → Approved → Ordered from the detail page." actions={<Link href="/procurement/purchase-orders" className="btn-secondary">Cancel</Link>} />
       <div className="panel space-y-4 p-5">
         {error && <ErrorState message={error} />}
         <div className="grid grid-cols-2 gap-3">

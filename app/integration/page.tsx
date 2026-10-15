@@ -104,7 +104,7 @@ export default function IntegrationPage() {
 
   return (
     <div>
-      <PageHeader title="ERP Integration Centre" description="This demo runs entirely on a synthetic in-memory dataset. Nothing here is connected to a live ERP system." />
+      <PageHeader breadcrumb={["ERP Integration"]} title="ERP Integration Centre" description="This demo runs entirely on a synthetic in-memory dataset. Nothing here is connected to a live ERP system." />
 
       <div className="panel mb-4 flex flex-wrap items-center gap-4 p-4">
         <div className="flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800">

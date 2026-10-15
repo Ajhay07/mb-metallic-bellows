@@ -33,7 +33,7 @@ export default function SuppliersPage() {
 
   return (
     <div>
-      <PageHeader title="Supplier Directory" description="On-time %, rejection rate and the demo risk score are all computed live from purchase order history — see each supplier's profile for the full calculation." />
+      <PageHeader breadcrumb={["Suppliers"]} title="Supplier Directory" description="On-time %, rejection rate and the demo risk score are all computed live from purchase order history — see each supplier's profile for the full calculation." />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {suppliers.map((s) => (
           <Link key={s.id} href={`/suppliers/${s.id}`} className="panel flex flex-col gap-3 p-4 hover:shadow-md">

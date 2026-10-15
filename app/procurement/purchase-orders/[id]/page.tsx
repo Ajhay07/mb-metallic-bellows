@@ -111,6 +111,7 @@ export default function PurchaseOrderDetailPage() {
   return (
     <div>
       <PageHeader
+        breadcrumb={["Procurement", "Purchase Orders", po.poNumber]}
         title={po.poNumber}
         description={`${supplier?.name ?? po.supplierId} · Order date ${formatDateShort(po.orderDate)} · Expected ${formatDateShort(po.expectedDeliveryDate)}${overdue ? " (OVERDUE)" : ""}`}
         actions={<Link href="/procurement/purchase-orders" className="btn-secondary">Back to purchase orders</Link>}

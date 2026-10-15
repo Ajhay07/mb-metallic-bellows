@@ -1,4 +1,5 @@
-import { Loader2, AlertTriangle, Inbox } from "lucide-react";
+import Link from "next/link";
+import { Loader2, AlertTriangle, Inbox, ChevronRight } from "lucide-react";
 
 export function LoadingState({ label = "Loading…" }: { label?: string }) {
   return (
@@ -28,12 +29,36 @@ export function EmptyState({ title, description }: { title: string; description?
   );
 }
 
-export function PageHeader({ title, description, actions }: { title: string; description?: string; actions?: React.ReactNode }) {
+export function PageHeader({
+  title,
+  description,
+  actions,
+  breadcrumb,
+}: {
+  title: string;
+  description?: string;
+  actions?: React.ReactNode;
+  /** Trail of section labels shown above the title, e.g. ["Operations", "Materials & Inventory"]. */
+  breadcrumb?: string[];
+}) {
   return (
     <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h1 className="text-xl font-semibold text-graphite-900">{title}</h1>
-        {description && <p className="mt-1 max-w-2xl text-sm text-graphite-500">{description}</p>}
+        <nav className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.1em] text-[color:var(--muted-foreground)]" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-graphite-700">Operations</Link>
+          {breadcrumb?.map((crumb) => (
+            <span key={crumb} className="flex items-center gap-1">
+              <ChevronRight className="h-3 w-3 shrink-0 text-graphite-300" />
+              <span>{crumb}</span>
+            </span>
+          ))}
+        </nav>
+        <div className="mb-2 mt-1.5 flex items-center gap-1" aria-hidden="true">
+          <span className="h-[3px] w-6 bg-[color:var(--border-strong)]" />
+          <span className="h-[3px] w-3 bg-orange-500" />
+        </div>
+        <h1 className="text-xl font-extrabold uppercase tracking-tight text-graphite-900 sm:text-2xl">{title}</h1>
+        {description && <p className="mt-1 max-w-2xl text-sm text-[color:var(--muted-foreground)]">{description}</p>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </div>

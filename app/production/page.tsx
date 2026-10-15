@@ -34,7 +34,7 @@ function ProductionInner() {
 
   return (
     <div>
-      <PageHeader title="Production Orders" description="Routing: Material Prep → Cutting → Forming → Welding → Assembly → Dimensional Inspection → Leak Test → Final QA → Packing → Completed." />
+      <PageHeader breadcrumb={["Production"]} title="Production Orders" description="Routing: Material Prep → Cutting → Forming → Welding → Assembly → Dimensional Inspection → Leak Test → Final QA → Packing → Completed." />
       {filter === "atRisk" && <div className="mb-3 badge border-amber-300 bg-amber-50 text-amber-800">Showing: at-risk orders (not ready or on hold)</div>}
       {rows.length === 0 ? (
         <EmptyState title="No production orders match this view" />
